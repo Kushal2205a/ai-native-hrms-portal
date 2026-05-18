@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import Link from 'next/link';
 export default function SignupForm() {
   const router = useRouter();
   const supabase = createClient();
+  const searchParams = useSearchParams();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -59,8 +61,13 @@ export default function SignupForm() {
         return;
       }
 
-      // All new signups are candidates — trigger sets role automatically
-      router.push('/dashboard/candidate');
+      // Safe redirect — internal paths only
+      const redirectTo = searchParams.get('redirect') ?? '/dashboard/candidate';
+      const safeRedirect =
+        redirectTo.startsWith('/') && !redirectTo.startsWith('//')
+          ? redirectTo
+          : '/dashboard/candidate';
+      router.push(safeRedirect);
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -78,7 +85,7 @@ export default function SignupForm() {
       <div className="auth-card glass-card">
         <div className="auth-brand">
           <span className="auth-pulse auth-pulse--teal" aria-hidden="true" />
-          <span className="s-tag">HRMS</span>
+          <span className="s-tag">Saarthi HRMS</span>
         </div>
 
         <h1 className="s-h auth-heading">

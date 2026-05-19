@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 export default function Portal({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  const ref = useRef<Element | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    ref.current = document.body;
-    setMounted(true);
+    containerRef.current = document.body;
   }, []);
 
-  return mounted && ref.current ? createPortal(children, ref.current) : null;
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  return createPortal(children, document.body);
 }

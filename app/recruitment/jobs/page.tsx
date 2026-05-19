@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import JobPostingsTable from '@/components/recruitment/JobPostingsTable';
 
-export const metadata = { title: 'Job Postings — Saarthi HRMS' };
+export const metadata = { title: 'Job Postings' };
 
 export default async function RecruitmentJobsPage() {
   const supabase = await createClient();

@@ -38,10 +38,16 @@ export default async function JobDetailPage({ params }: Props) {
 
       <div className="jobs-container jobs-container--detail">
         {/* Back */}
-        <Link href="/jobs" className="job-detail-back">
-          <ArrowLeft size={13} strokeWidth={1.5} />
-          All positions
-        </Link>
+        <div className="jobs-topbar">
+            <Link href="/jobs" className="job-detail-back">
+                <ArrowLeft size={13} strokeWidth={1.5} />
+                All positions
+            </Link>
+
+            <Link href="/dashboard/candidate" className="jobs-dashboard-link">
+                Dashboard
+            </Link>
+        </div>
 
         {/* Header card */}
         <div className="glass-card job-detail-header">
@@ -73,13 +79,18 @@ export default async function JobDetailPage({ params }: Props) {
             </div>
           )}
 
-          <p className="job-meta-item" style={{ marginTop: '12px' }}>
-            Posted {new Date(job.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+          <p className="job-detail-posted">
+            Posted{' '}
+            {new Date(job.created_at).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+            })}
           </p>
 
           {/* Apply CTA */}
-          <Link href={`/signup?redirect=/jobs/${id}`} className="btn-g job-detail-apply">
-            Apply for this role →
+          <Link href={`/jobs/${id}/apply`} className="btn-g job-detail-apply">
+             Apply for this role →
           </Link>
         </div>
 

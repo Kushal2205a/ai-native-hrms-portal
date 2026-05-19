@@ -31,10 +31,19 @@ export default async function PublicJobsPage() {
 
       <div className="jobs-container">
         {/* Header */}
+        <div className="jobs-topbar">
+            <Link href="/dashboard/candidate" className="job-detail-back">
+                ← Dashboard
+            </Link>
+
+            <Link href="/dashboard/candidate" className="jobs-dashboard-link">
+                Dashboard
+            </Link>
+        </div>
         <div className="jobs-header">
           <div className="jobs-brand">
             <span className="auth-pulse auth-pulse--peach" aria-hidden="true" />
-            <span className="s-tag">Saarthi HRMS</span>
+            <span className="s-tag">HRMS</span>
           </div>
           <h1 className="s-h jobs-heading">Open Positions</h1>
           <p className="jobs-sub">

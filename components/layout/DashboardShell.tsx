@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getDashboardSession } from '@/lib/auth/get-dashboard-session';
-import Sidebar from '@/components/layout/Sidebar';
-import Topbar from '@/components/layout/Topbar';
+import DashboardClient from '@/components/layout/DashboardClient';
 
 export default async function DashboardShell({
   children,
@@ -15,12 +14,8 @@ export default async function DashboardShell({
   }
 
   return (
-    <div className="dash-shell">
-      <Sidebar role={session.role} fullName={session.fullName} />
-      <div className="dash-main">
-        <Topbar role={session.role} />
-        <main className="dash-content">{children}</main>
-      </div>
-    </div>
+    <DashboardClient role={session.role} fullName={session.fullName}>
+      {children}
+    </DashboardClient>
   );
 }

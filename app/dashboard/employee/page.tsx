@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import { createClient } from '@/lib/supabase/server';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { RegenerateEmployeeInsightButton } from '@/components/employee/RegenerateEmployeeInsightButton';
 import {
     buildFallbackEmployeeGrowthInsight,
@@ -137,30 +137,8 @@ function mergeSavedInsight(
 }
 
 export default async function EmployeeDashboardPage() {
-    const supabase = await createClient();
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-        redirect('/login');
-    }
-
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('id, full_name, role')
-        .eq('id', user.id)
-        .single();
-
-    console.log('EMPLOYEE DASHBOARD DEBUG', {
-        authUserId: user.id,
-        profile,
-    });
-
-    if (!profile || profile.role !== 'employee') {
-        redirect('/login');
-    }
+    const session = await requireDashboardSession('employee');
+  const supabase = await createClient();
 
     const { data: employee, error: employeeError } = await supabase
         .from('employees')
@@ -180,25 +158,21 @@ export default async function EmployeeDashboardPage() {
             )
         `
         )
-        .eq('profile_id', profile.id)
+        .eq('profile_id', session.profileId)
         .maybeSingle();
 
     console.log('EMPLOYEE ROW DEBUG', {
-        profileId: profile.id,
+        profileId: session.profileId,
         employee,
         employeeError,
     });
     if (!employee) {
         return (
-            <DashboardLayout
-                role="employee"
-                fullName={profile.full_name}
-                title="Employee Overview"
-            >
+            <>
                 <section className="dash-section">
                     <p className="s-tag dash-section-tag">Employee Overview</p>
                     <h1 className="s-h dash-page-heading">
-                        Good to see you, {profile.full_name.split(' ')[0]}.
+                        Good to see you, {session.fullName.split(' ')[0]}.
                     </h1>
                 </section>
 
@@ -210,7 +184,7 @@ export default async function EmployeeDashboardPage() {
                         login account.
                     </p>
                 </section>
-            </DashboardLayout>
+            </>
         );
     }
 
@@ -272,15 +246,11 @@ export default async function EmployeeDashboardPage() {
     ];
 
     return (
-        <DashboardLayout
-            role="employee"
-            fullName={profile.full_name}
-            title="Employee Overview"
-        >
+        <>
             <section className="dash-section">
                 <p className="s-tag dash-section-tag">Employee Overview</p>
                 <h1 className="s-h dash-page-heading">
-                    Good to see you, {profile.full_name.split(' ')[0]}.
+                    Good to see you, {session.fullName.split(' ')[0]}.
                 </h1>
                 <p className="dash-panel-empty">
                     View your profile, performance summary, and AI-assisted growth
@@ -422,6 +392,6 @@ export default async function EmployeeDashboardPage() {
                     </div>
                 </section>
             </div>
-        </DashboardLayout>
+        </>
     );
 }

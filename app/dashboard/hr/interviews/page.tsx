@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import MeetingLinkForm from '@/components/interviews/MeetingLinkForm';
 import { createClient } from '@/lib/supabase/server';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import InterviewFeedbackPanel from '@/components/interviews/InterviewFeedbackPanel';
 
 export const metadata = {
@@ -65,25 +65,8 @@ function formatStatus(status: string) {
 }
 
 export default async function HRInterviewsPage() {
+  const session = await requireDashboardSession('hr');
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, role, full_name')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || profile.role !== 'hr') {
-    redirect('/login');
-  }
 
   const { data: interviews } = await supabase
     .from('interviews')
@@ -138,7 +121,7 @@ export default async function HRInterviewsPage() {
   );
 
   return (
-    <DashboardLayout role="hr" fullName={profile.full_name} title="Interviews">
+    <>
       <section className="dash-section">
         <p className="s-tag dash-section-tag">Interviews</p>
         <h1 className="s-h dash-page-heading">Scheduled interviews</h1>
@@ -217,6 +200,6 @@ export default async function HRInterviewsPage() {
           </p>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

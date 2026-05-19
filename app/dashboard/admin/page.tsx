@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { Users, Briefcase, CalendarCheck, TrendingUp } from 'lucide-react';
 
 export const metadata = { title: 'Admin' };
@@ -42,67 +41,59 @@ type BasicProfile = {
 };
 
 export default async function AdminDashboard() {
+  const session = await requireDashboardSession('admin');
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, role')
-    .eq('id', user.id)
-    .single();
-
-  const { count: openRolesCount } = await supabase
-    .from('job_postings')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'open');
-  const { count: totalEmployeesCount } = await supabase
-    .from('employees')
-    .select('id', { count: 'exact', head: true });
-
-  const { data: employeePerformanceRows } = await supabase
-    .from('employees')
-    .select('performance_score')
-    .not('performance_score', 'is', null);
-
-  const { data: recentApplications } = await supabase
-    .rpc('get_application_reviews')
-    .limit(3);
   const now = new Date();
-
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
-
   const endOfToday = new Date(now);
   endOfToday.setHours(23, 59, 59, 999);
 
-  const { count: interviewsTodayCount } = await supabase
-  .from('interviews')
-  .select('id', { count: 'exact', head: true })
-  .gte('scheduled_at', startOfToday.toISOString())
-  .lte('scheduled_at', endOfToday.toISOString());
+  const [
+    { count: openRolesCount },
+    { count: totalEmployeesCount },
+    { data: employeePerformanceRows },
+    { data: recentApplications },
+    { count: interviewsTodayCount },
+    { data: upcomingInterviews },
+  ] = await Promise.all([
+    supabase
+      .from('job_postings')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'open'),
+    supabase.from('employees').select('id', { count: 'exact', head: true }),
+    supabase
+      .from('employees')
+      .select('performance_score')
+      .not('performance_score', 'is', null),
+    supabase.rpc('get_application_reviews').limit(3),
+    supabase
+      .from('interviews')
+      .select('id', { count: 'exact', head: true })
+      .gte('scheduled_at', startOfToday.toISOString())
+      .lte('scheduled_at', endOfToday.toISOString()),
+    supabase
+      .from('interviews')
+      .select(
+        `
+        id,
+        scheduled_at,
+        status,
+        job_postings (
+          title
+        ),
+        candidate_profiles (
+          id,
+          user_id
+        )
+      `
+      )
+      .gte('scheduled_at', now.toISOString())
+      .order('scheduled_at', { ascending: true })
+      .limit(3),
+  ]);
 
-  const { data: upcomingInterviews } = await supabase
-  .from('interviews')
-  .select(
-    `
-    id,
-    scheduled_at,
-    status,
-    job_postings (
-      title
-    ),
-    candidate_profiles (
-      id,
-      user_id
-    )
-  `
-  )
-  .gte('scheduled_at', now.toISOString())
-  .order('scheduled_at', { ascending: true })
-  .limit(3);
-  
 
 
 
@@ -131,7 +122,6 @@ export default async function AdminDashboard() {
     );
 
   const recentApplicationItems = (recentApplications ?? []) as RecentApplication[];
-  if (!profile || profile.role !== 'admin') redirect('/login');
 
   const performanceScores = (employeePerformanceRows ?? [])
   .map((employee) => employee.performance_score)
@@ -171,10 +161,10 @@ export default async function AdminDashboard() {
     },
     ];
   return (
-    <DashboardLayout role="admin" fullName={profile.full_name} title="Admin Overview">
+    <>
       <div className="dash-section">
         <p className="s-tag dash-section-tag">Overview</p>
-        <h1 className="s-h dash-page-heading">Good to see you, {profile.full_name.split(' ')[0]}.</h1>
+        <h1 className="s-h dash-page-heading">Good to see you, {session.fullName.split(' ')[0]}.</h1>
       </div>
 
       {/* Stat cards */}
@@ -272,6 +262,6 @@ export default async function AdminDashboard() {
             )}
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

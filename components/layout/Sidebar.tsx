@@ -48,6 +48,7 @@ export default function Sidebar({ role, fullName }: SidebarProps) {
                         <Link
                             key={item.href}
                             href={item.href}
+                            prefetch={true}
                             className={`sidebar-item ${active ? 'sidebar-item--active' : ''}`}
                         >
                             <Icon size={15} strokeWidth={1.5} />

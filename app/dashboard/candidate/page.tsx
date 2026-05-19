@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { Briefcase, FileText, CalendarCheck, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import InterviewSlotPicker from '@/components/candidate/InterviewSlotPicker';
@@ -51,16 +50,9 @@ const STAT_CARD_CONFIG = [
     { label: 'Profile Complete', icon: UserCircle, color: 'var(--g)' },
 ];
 export default async function CandidateDashboard() {
+    const session = await requireDashboardSession('candidate');
     const supabase = await createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) redirect('/login');
-
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, role')
-        .eq('id', user.id)
-        .single();
     const { data: openJobs } = await supabase
         .from('job_postings')
         .select(
@@ -82,7 +74,7 @@ export default async function CandidateDashboard() {
     const { data: candidateProfile } = await supabase
         .from('candidate_profiles')
         .select('id, resume_text, experience_years, education')
-        .eq('user_id', user.id)
+        .eq('user_id', session.userId)
         .maybeSingle();
 
     const { data: myApplications } = candidateProfile
@@ -118,8 +110,6 @@ export default async function CandidateDashboard() {
         candidateProfile?.experience_years !== null &&
         candidateProfile?.education
     );
-    if (!profile || profile.role !== 'candidate') redirect('/login');
-
     const statCards = STAT_CARD_CONFIG.map((card) => {
         const values: Record<string, string | number> = {
             'Jobs Available': jobsAvailableCount,
@@ -135,10 +125,10 @@ export default async function CandidateDashboard() {
     });
 
     return (
-        <DashboardLayout role="candidate" fullName={profile.full_name} title="My Overview">
+        <>
             <div className="dash-section">
                 <p className="s-tag dash-section-tag">Overview</p>
-                <h1 className="s-h dash-page-heading">Hello, {profile.full_name.split(' ')[0]}.</h1>
+                <h1 className="s-h dash-page-heading">Hello, {session.fullName.split(' ')[0]}.</h1>
             </div>
 
             <div className="dash-cards">
@@ -246,6 +236,6 @@ export default async function CandidateDashboard() {
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+        </>
     );
 }

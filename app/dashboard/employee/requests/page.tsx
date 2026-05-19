@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import { createClient } from '@/lib/supabase/server';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { EmployeeRequestForm } from '@/components/employee/EmployeeRequestForm';
 import {
   CalendarDays,
@@ -85,39 +85,18 @@ function getPriorityClass(priority: string) {
 }
 
 export default async function EmployeeRequestsPage() {
+  const session = await requireDashboardSession('employee');
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, full_name, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || profile.role !== 'employee') {
-    redirect('/login');
-  }
 
   const { data: employee } = await supabase
     .from('employees')
     .select('id, full_name, job_title')
-    .eq('profile_id', profile.id)
+    .eq('profile_id', session.profileId)
     .maybeSingle();
 
   if (!employee) {
     return (
-      <DashboardLayout
-        role="employee"
-        fullName={profile.full_name}
-        title="Requests"
-      >
+      <>
         <section className="dash-section">
           <p className="s-tag dash-section-tag">Requests</p>
           <h1 className="s-h dash-page-heading">Employee requests</h1>
@@ -131,7 +110,7 @@ export default async function EmployeeRequestsPage() {
             login account.
           </p>
         </section>
-      </DashboardLayout>
+      </>
     );
   }
 
@@ -201,11 +180,7 @@ export default async function EmployeeRequestsPage() {
   ];
 
   return (
-    <DashboardLayout
-      role="employee"
-      fullName={profile.full_name}
-      title="Requests"
-    >
+    <>
       <section className="dash-section">
         <p className="s-tag dash-section-tag">Requests</p>
         <h1 className="s-h dash-page-heading">Employee requests</h1>
@@ -311,6 +286,6 @@ export default async function EmployeeRequestsPage() {
           )}
         </section>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

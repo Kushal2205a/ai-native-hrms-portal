@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import { createClient } from '@/lib/supabase/server';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { EmployeeRequestReviewForm } from '@/components/employee/EmployeeRequestReviewForm';
 import {
   CalendarDays,
@@ -127,25 +127,8 @@ function getPriorityClass(priority: string) {
 }
 
 export default async function HRRequestsPage() {
+  const session = await requireDashboardSession('admin', 'hr');
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, full_name, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || !['admin', 'hr'].includes(profile.role)) {
-    redirect('/login');
-  }
 
   const { data: requests } = await supabase
     .from('employee_requests')
@@ -223,7 +206,7 @@ export default async function HRRequestsPage() {
   ];
 
   return (
-    <DashboardLayout role="hr" fullName={profile.full_name} title="Requests">
+    <>
       <section className="dash-section">
         <p className="s-tag dash-section-tag">Requests</p>
         <h1 className="s-h dash-page-heading">Employee requests</h1>
@@ -327,6 +310,6 @@ export default async function HRRequestsPage() {
           </p>
         )}
       </section>
-    </DashboardLayout>
+    </>
   );
 }

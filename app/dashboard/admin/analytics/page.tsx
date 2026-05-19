@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import { createClient } from '@/lib/supabase/server';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { RegenerateAnalyticsInsightButton } from '@/components/analytics/RegenerateAnalyticsInsightButton';
 import {
   buildFallbackAnalyticsInsight,
@@ -196,25 +196,8 @@ function mergeSavedInsight(
 }
 
 export default async function AdminAnalyticsPage() {
+  const session = await requireDashboardSession('admin');
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || profile.role !== 'admin') {
-    redirect('/login');
-  }
 
   const { data: applications } = await supabase
     .from('job_applications')
@@ -348,11 +331,7 @@ export default async function AdminAnalyticsPage() {
   ).sort((a, b) => b[1] - a[1]);
 
   return (
-    <DashboardLayout
-      role="admin"
-      fullName={profile.full_name}
-      title="Analytics"
-    >
+    <>
       <section className="dash-section">
         <p className="s-tag dash-section-tag">Analytics</p>
         <h1 className="s-h dash-page-heading">
@@ -563,6 +542,6 @@ export default async function AdminAnalyticsPage() {
           </div>
         </section>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

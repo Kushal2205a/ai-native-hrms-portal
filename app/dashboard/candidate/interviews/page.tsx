@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import { createClient } from '@/lib/supabase/server';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 
 export const metadata = {
   title: 'My Interviews',
@@ -44,30 +44,13 @@ function formatStatus(status: string) {
 }
 
 export default async function CandidateInterviewsPage() {
+  const session = await requireDashboardSession('candidate');
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, role, full_name')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || profile.role !== 'candidate') {
-    redirect('/login');
-  }
 
   const { data: candidateProfile } = await supabase
     .from('candidate_profiles')
     .select('id')
-    .eq('user_id', user.id)
+    .eq('user_id', session.userId)
     .maybeSingle();
 
   const { data: interviews } = candidateProfile
@@ -95,11 +78,7 @@ export default async function CandidateInterviewsPage() {
   const interviewItems = (interviews ?? []) as CandidateInterview[];
 
   return (
-    <DashboardLayout
-      role="candidate"
-      fullName={profile.full_name}
-      title="My Interviews"
-    >
+    <>
       <section className="dash-section">
         <p className="s-tag dash-section-tag">Interviews</p>
         <h1 className="s-h dash-page-heading">My interviews</h1>
@@ -160,6 +139,6 @@ export default async function CandidateInterviewsPage() {
           </p>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
+
 import { createClient } from '@/lib/supabase/server';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { Users, Briefcase, CalendarCheck, TrendingUp } from 'lucide-react';
 
 export const metadata = { title: 'HR' };
@@ -43,25 +43,8 @@ type BasicProfile = {
 };
 
 export default async function HRDashboard() {
+  const session = await requireDashboardSession('hr');
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || profile.role !== 'hr') {
-    redirect('/login');
-  }
 
   const { count: openRolesCount } = await supabase
     .from('job_postings')
@@ -177,11 +160,11 @@ export default async function HRDashboard() {
     },
     ];
   return (
-    <DashboardLayout role="hr" fullName={profile.full_name} title="HR Overview">
+    <>
       <div className="dash-section">
         <p className="s-tag dash-section-tag">Overview</p>
         <h1 className="s-h dash-page-heading">
-          Good to see you, {profile.full_name.split(' ')[0]}.
+          Good to see you, {session.fullName.split(' ')[0]}.
         </h1>
       </div>
 
@@ -291,6 +274,6 @@ export default async function HRDashboard() {
           )}
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

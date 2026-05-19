@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import { createClient } from '@/lib/supabase/server';
+import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import { buildFallbackWorkforceInsight } from '@/lib/ai/employeeInsights';
 import { RegenerateWorkforceInsightButton } from '@/components/employees/RegenerateWorkforceInsightButton';
 
@@ -148,25 +148,8 @@ type EmployeesPageProps = {
 export default async function HREmployeesPage({
     searchParams,
 }: EmployeesPageProps) {
-    const supabase = await createClient();
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-        redirect('/login');
-    }
-
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, role')
-        .eq('id', user.id)
-        .single();
-
-    if (!profile || !['admin', 'hr'].includes(profile.role)) {
-        redirect('/login');
-    }
+    const session = await requireDashboardSession('admin', 'hr');
+  const supabase = await createClient();
 
     const params = await searchParams;
 
@@ -317,11 +300,7 @@ export default async function HREmployeesPage({
     ];
 
     return (
-        <DashboardLayout
-            role="hr"
-            fullName={profile.full_name}
-            title="Employees"
-        >
+        <>
             <section className="dash-section">
                 <p className="s-tag dash-section-tag">Employees</p>
                 <h1 className="s-h dash-page-heading">
@@ -553,7 +532,7 @@ export default async function HREmployeesPage({
                     <p className="dash-panel-empty">No employees match these filters.</p>
                 )}
             </section>
-        </DashboardLayout>
+        </>
     );
 }
 

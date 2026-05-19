@@ -1,16 +1,21 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LogOut } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import { getNavTitle } from '@/lib/navigation';
+import type { Role } from '@/types/roles';
+
 interface TopbarProps {
-    title: string;
+    role: Role;
 }
 
-export default function Topbar({ title }: TopbarProps) {
+export default function Topbar({ role }: TopbarProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const supabase = createClient();
+    const title = getNavTitle(pathname, role);
 
     async function handleSignOut() {
         await supabase.auth.signOut();

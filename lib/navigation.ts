@@ -19,6 +19,21 @@ export interface NavItem {
   icon: React.ElementType;
 }
 
+export function getNavTitle(pathname: string, role: Role): string {
+  const items = NAV_ITEMS[role];
+  let match: NavItem | undefined;
+
+  for (const item of items) {
+    if (pathname === item.href || pathname.startsWith(`${item.href}/`)) {
+      if (!match || item.href.length > match.href.length) {
+        match = item;
+      }
+    }
+  }
+
+  return match?.label ?? 'Dashboard';
+}
+
 export const NAV_ITEMS: Record<Role, NavItem[]> = {
   admin: [
     { label: 'Overview',       href: '/dashboard/admin',          icon: LayoutDashboard },

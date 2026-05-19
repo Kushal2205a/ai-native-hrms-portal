@@ -1,6 +1,7 @@
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import type { Role } from '@/types/roles';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 interface DashboardLayoutProps {
   role: Role;

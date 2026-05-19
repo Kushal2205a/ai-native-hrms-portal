@@ -4,7 +4,7 @@ This is an HRMS portal. One place to run hiring, keep employee information, hand
 
 This build is AI native. AI helps during everyday HR work: reviewing applications, summarizing interviews, drafting employee requests, and highlighting patterns in workforce data. Users work in the standard hiring and HR screens. Suggestions appear inside those screens.
 
-**Live demo:** not deployed yet.
+**Live demo:** https://ai-native-hrms-portal.onrender.com
 
 ## Capabilities
 

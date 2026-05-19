@@ -1,36 +1,42 @@
+/* SaarthiOS global styles: tokens, layout shell, feature surfaces */
+
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Design Tokens ── */
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
 :root {
-  --bg:       #1a1613;
-  --ink:      #ede8e1;
-  --muted:    #7a7068;
-  --dim:      #231e1b;
-  --g:        #f2a384;
-  --g-glow:   #f2a38466;
-  --teal:     #77c3c0;
-  --amber:    #d4903c;
-  --red:      #c94a3a;
-  --border:   #ffffff1a;
+  --bg: #1a1613;
+  --ink: #ede8e1;
+  --muted: #7a7068;
+  --dim: #231e1b;
+  --g: #f2a384;
+  --g-glow: #f2a38466;
+  --teal: #77c3c0;
+  --amber: #d4903c;
+  --red: #c94a3a;
+  --border: #ffffff1a;
 
   --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans:  'DM Sans', sans-serif;
-  --mono:  'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --mono: 'Space Mono', monospace;
 
   --radius: 4px;
 }
 
-[data-theme="indigo"] {
-  --bg:    #f5f2eb;
-  --ink:   #0f2a47;
+[data-theme='indigo'] {
+  --bg: #f5f2eb;
+  --ink: #0f2a47;
   --muted: #6b6b6b;
-  --dim:   #e8e4db;
+  --dim: #e8e4db;
   --border: #0f2a4720;
 }
+
 [data-theme='light'] {
   --bg: #f3f0e8;
   --panel: #ffffff;
@@ -46,8 +52,14 @@
   --danger: #a43f3f;
   --success: #2f7d4f;
 }
-/* ── Reset ── */
-*, *::before, *::after {
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -60,7 +72,36 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Reusable Classes ── */
+/* ==========================================================================
+   Motion
+   ========================================================================== */
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.75);
+    opacity: 0.55;
+  }
+}
+
+/* ==========================================================================
+   Primitives
+   ========================================================================== */
 .s-tag {
   font-family: var(--mono);
   color: #f2a384b3;
@@ -130,7 +171,9 @@ html {
   box-shadow: 0 0 16px var(--g-glow);
 }
 
-/* ── Auth pages (login + signup) ── */
+/* ==========================================================================
+   Auth
+   ========================================================================== */
 .auth-root {
   min-height: 100vh;
   display: flex;
@@ -153,14 +196,12 @@ html {
   inset: 0;
 }
 
-/* Login: peach left, teal right */
 .auth-bg-mesh--login {
   background:
     radial-gradient(ellipse 60% 50% at 20% 40%, #f2a38418 0%, transparent 70%),
     radial-gradient(ellipse 50% 60% at 80% 70%, #77c3c012 0%, transparent 70%);
 }
 
-/* Signup: teal right-top, peach left-bottom */
 .auth-bg-mesh--signup {
   background:
     radial-gradient(ellipse 60% 50% at 80% 30%, #77c3c012 0%, transparent 70%),
@@ -189,11 +230,6 @@ html {
   animation: reveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@keyframes reveal {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 .auth-brand {
   display: flex;
   align-items: center;
@@ -210,11 +246,8 @@ html {
 }
 
 .auth-pulse--peach { background: var(--g); }
-.auth-pulse--teal  { background: var(--teal); }
-
-@keyframes breathe {
-  0%, 100% { transform: scale(1);    opacity: 1; }
-  50%       { transform: scale(0.75); opacity: 0.55; }
+.auth-pulse--teal {
+  background: var(--teal);
 }
 
 .auth-heading {
@@ -341,7 +374,9 @@ html {
   .auth-card { padding: 36px 24px 32px; }
 }
 
-/* ── Dashboard Shell ── */
+/* ==========================================================================
+   Dashboard shell
+   ========================================================================== */
 .dash-shell {
   display: flex;
   min-height: 100vh;
@@ -363,7 +398,66 @@ html {
   gap: 24px;
 }
 
-/* ── Sidebar ── */
+.dash-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dash-loading-line {
+  height: 14px;
+  border-radius: var(--radius);
+  background: #ffffff0d;
+  animation: dash-loading-pulse 1.1s ease-in-out infinite;
+}
+
+.dash-loading-line--short {
+  width: 28%;
+}
+
+.dash-loading-line--long {
+  width: 52%;
+  height: 32px;
+  animation-delay: 0.08s;
+}
+
+.dash-loading-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.dash-loading-card {
+  min-height: 110px;
+  border-radius: 16px;
+  border: 1px solid #ffffff14;
+  background: #ffffff0d;
+  animation: dash-loading-pulse 1.1s ease-in-out infinite;
+}
+
+.dash-loading-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.dash-loading-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.dash-loading-card:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+@keyframes dash-loading-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* --- Sidebar --- */
 .sidebar {
   width: 220px;
   min-height: 100vh;
@@ -466,7 +560,7 @@ html {
   margin-top: 2px;
 }
 
-/* ── Topbar ── */
+/* --- Topbar --- */
 .topbar {
   display: flex;
   align-items: center;
@@ -494,7 +588,7 @@ html {
 }
 .topbar-signout:hover { color: var(--red); }
 
-/* ── Dashboard page content ── */
+/* --- Dashboard content --- */
 .dash-section {
   display: flex;
   flex-direction: column;
@@ -508,7 +602,6 @@ html {
   color: var(--ink);
 }
 
-/* Stat cards grid */
 .dash-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -534,7 +627,6 @@ html {
 
 .dash-stat-label { margin-top: 2px; }
 
-/* Panel row */
 .dash-panels {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -559,7 +651,9 @@ html {
   font-style: italic;
 }
 
-/* ── Badges ── */
+/* ==========================================================================
+   Badges
+   ========================================================================== */
 .badge {
   font-family: var(--mono);
   font-size: 9px;
@@ -573,7 +667,9 @@ html {
 .badge--draft  { background: #d4903c18; color: var(--amber); border: 1px solid #d4903c33; }
 .badge--closed { background: #ffffff0a; color: var(--muted); border: 1px solid var(--border); }
 
-/* ── Data Table ── */
+/* ==========================================================================
+   Tables
+   ========================================================================== */
 .table-toolbar {
   display: flex;
   align-items: center;
@@ -674,7 +770,9 @@ html {
   font-weight: 300;
 }
 
-/* ── Dialog ── */
+/* ==========================================================================
+   Dialog
+   ========================================================================== */
 .dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -819,7 +917,9 @@ html {
   min-height: 44px;
 }
 
-/* ── Public Jobs pages ── */
+/* ==========================================================================
+   Public jobs
+   ========================================================================== */
 .jobs-root {
   min-height: 100vh;
   background: var(--bg);
@@ -959,7 +1059,6 @@ html {
   background: #f2a38410;
 }
 
-/* Job detail */
 .job-detail-back {
   display: inline-flex;
   align-items: center;
@@ -1034,14 +1133,6 @@ html {
   background: #f2a38410;
   box-shadow: 0 8px 24px #f2a38422;
 }
-.job-detail-apply {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  margin-top: 28px;
-}
-
 .job-detail-description {
   font-family: var(--sans);
   font-size: 14px;
@@ -1059,7 +1150,10 @@ html {
   .job-card-apply { display: none; }
 }
 
-/* ── Candidate Profile ── */
+/* ==========================================================================
+   Candidate profile
+   ========================================================================== */
+
 .candidate-page-sub {
   font-family: var(--sans);
   font-size: 13px;
@@ -1278,13 +1372,9 @@ html {
   margin-bottom: 24px;
 }
 
-.candidate-profile-card {
-  padding: 28px;
-}
-
-/* ── Apply Page ── */
-
-/* ── Apply Page ── */
+/* ==========================================================================
+   Apply flow
+   ========================================================================== */
 
 .apply-detail-container {
   max-width: 980px;
@@ -1479,7 +1569,9 @@ html {
   }
 }
 
-/* ── Candidate Dashboard Lists ── */
+/* ==========================================================================
+   Candidate dashboard
+   ========================================================================== */
 
 .candidate-dashboard-list {
   display: flex;
@@ -1531,7 +1623,9 @@ html {
   text-transform: uppercase;
 }
 
-/* ── Applications Review ── */
+/* ==========================================================================
+   Applications and screening
+   ========================================================================== */
 
 .review-applications-list {
   display: flex;
@@ -1540,9 +1634,9 @@ html {
 }
 
 .review-application-card {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 18px;
   padding: 14px 16px;
   border: 1px solid var(--border);
@@ -1579,28 +1673,33 @@ html {
 }
 
 .review-application-side {
+  min-width: 190px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .application-actions {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: stretch;
   gap: 6px;
 }
 
 .application-actions-row {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .application-actions button {
-  min-height: 30px;
+  width: 100%;
+  min-height: 32px;
   padding: 0 10px;
+  white-space: nowrap;
   border-radius: 2px;
   border: 1px solid var(--g-glow);
   background: transparent;
@@ -1636,39 +1735,6 @@ html {
   font-family: var(--sans);
   font-size: 11px;
   text-align: right;
-}
-
-.review-application-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 18px;
-}
-
-.review-application-side {
-  min-width: 190px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.application-actions {
-  width: 100%;
-  align-items: stretch;
-}
-
-.application-actions-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.application-actions button {
-  width: 100%;
-  min-height: 32px;
-  padding: 0 10px;
-  white-space: nowrap;
 }
 
 @media (max-width: 760px) {
@@ -2042,6 +2108,10 @@ html {
   }
 }
 
+/* ==========================================================================
+   Interviews
+   ========================================================================== */
+
 .candidate-slot-picker {
   margin-top: 14px;
   padding: 14px;
@@ -2102,7 +2172,7 @@ html {
 .candidate-interview-note {
   margin: 12px 0 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .candidate-interview-trigger {
@@ -2254,12 +2324,6 @@ html {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 22px;
-}
-
-.candidate-interview-note {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 13px;
 }
 
 @media (max-width: 680px) {
@@ -2683,6 +2747,10 @@ html {
   background: rgba(255, 214, 102, 0.08);
 }
 
+
+/* ==========================================================================
+   Employees
+   ========================================================================== */
 
 .employee-ai-panel {
   margin-top: 18px;
@@ -3207,6 +3275,10 @@ html {
   }
 }
 
+/* ==========================================================================
+   Analytics
+   ========================================================================== */
+
 .analytics-ai-regenerate-button {
   flex-shrink: 0;
   border: 1px solid rgba(242, 163, 132, 0.45);
@@ -3398,6 +3470,10 @@ html {
   cursor: not-allowed;
   opacity: 0.65;
 }
+
+/* ==========================================================================
+   HR requests
+   ========================================================================== */
 
 .employee-request-form {
   display: grid;
@@ -3888,7 +3964,10 @@ html {
   background: #262320;
 }
 
-/* Light mode overrides */
+/* ==========================================================================
+   Theme overrides
+   ========================================================================== */
+
 [data-theme='light'] .glass-card,
 [data-theme='light'] .dash-panel,
 [data-theme='light'] .application-stat-card,

@@ -70,7 +70,7 @@ export async function regenerateWorkforceInsight(
         departments (
         name
         ),
-        profiles (
+        profiles!employees_profile_id_fkey (
         role
         )
     `

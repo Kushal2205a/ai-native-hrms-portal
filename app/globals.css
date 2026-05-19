@@ -4075,3 +4075,476 @@ html {
   background: rgba(155, 106, 40, 0.1);
   color: #9b6a28;
 }
+
+/* ==========================================================================
+   Mobile — Shell, Sidebar & Topbar
+   ========================================================================== */
+
+/*
+  Hamburger button: hidden by default on desktop, revealed on mobile.
+  The component renders this button in the topbar; JS toggles
+  .sidebar--open on the sidebar and .sidebar-backdrop--visible on the
+  backdrop overlay.
+*/
+.topbar-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+.topbar-menu-btn:hover {
+  color: var(--ink);
+  border-color: #ffffff30;
+}
+
+/*
+  Mobile sidebar backdrop — sits behind the slide-in sidebar overlay,
+  dims the page, and closes the sidebar on tap.
+*/
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.sidebar-backdrop--visible {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  /* --- Sidebar becomes a slide-in overlay --- */
+  .sidebar {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    z-index: 100;
+    min-height: 100dvh;
+    transform: translateX(-100%);
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 6px 0 48px rgba(0, 0, 0, 0.45);
+    width: 240px;
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+  }
+
+  /* Hamburger visible on mobile */
+  .topbar-menu-btn {
+    display: inline-flex;
+  }
+
+  /* Topbar: tighter padding, ensure it doesn't overflow */
+  .topbar {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .topbar-title {
+    font-size: 13px;
+  }
+
+  /* Content area: reduce breathing room on small screens */
+  .dash-content {
+    padding: 18px 14px;
+    gap: 16px;
+  }
+
+  /* Page heading clamp floor tightened for mobile */
+  .dash-page-heading {
+    font-size: clamp(22px, 6vw, 32px);
+  }
+
+  /* Auth card already has a 480px breakpoint; reinforce for very small */
+  .auth-card {
+    padding: 28px 18px 24px;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Buttons & CTAs
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  /*
+    .btn-g has min-width: 220px which overflows on small phones.
+    Remove the floor; let the component set width where needed (full-width
+    utility classes are preferred on mobile anyway).
+  */
+  .btn-g {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Submit buttons inside auth and apply forms are already width:100%;
+     align .ncta pill links to full-width when they're the only CTA */
+  .ncta {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Dashboard stat cards
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  /* Ensure the auto-fill grid doesn't produce 1-column slivers on phones */
+  .dash-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-stat-value {
+    font-size: 26px;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Tables
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Stack the toolbar: count on one line, action button on the next */
+  .table-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .table-create-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Reduce cell padding so more columns fit before horizontal scroll */
+  .data-table th,
+  .data-table td {
+    padding: 10px 10px;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Dialogs & modals
+   ========================================================================== */
+
+@media (max-width: 560px) {
+  .dialog-backdrop {
+    padding: 12px;
+    align-items: flex-end; /* Sheet-from-bottom feel */
+  }
+
+  .dialog-panel {
+    max-height: 88vh;
+    padding: 24px 18px 20px;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .dialog-header {
+    margin-bottom: 18px;
+  }
+
+  .dialog-title {
+    font-size: 22px;
+  }
+
+  /* Actions stack vertically, primary action last (easier thumb reach) */
+  .dialog-actions {
+    flex-direction: column-reverse;
+  }
+
+  .dialog-submit {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Jobs & public pages
+   ========================================================================== */
+
+@media (max-width: 520px) {
+  .jobs-container {
+    padding: 36px 16px 56px;
+  }
+
+  .jobs-heading {
+    font-size: clamp(28px, 8vw, 40px);
+  }
+
+  .job-detail-header,
+  .job-detail-body {
+    padding: 20px;
+  }
+
+  /* Dashboard link in jobs topbar wraps gracefully */
+  .jobs-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Candidate & apply flow
+   ========================================================================== */
+
+@media (max-width: 520px) {
+  .candidate-profile-shell {
+    padding: 18px 14px;
+  }
+
+  .apply-job-card,
+  .apply-card {
+    padding: 18px;
+  }
+
+  /* Make apply form actions full-width on mobile */
+  .apply-form-actions {
+    justify-content: stretch;
+  }
+
+  .apply-form-actions button,
+  .apply-primary-btn,
+  .apply-secondary-btn {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Interview dialog
+   ========================================================================== */
+
+@media (max-width: 520px) {
+  .interview-dialog {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .interview-dialog-backdrop {
+    padding: 12px;
+  }
+
+  /* Date + time grids already collapse to 2-col at 680px;
+     push to 1-col on very small phones */
+  .interview-date-row,
+  .interview-time-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Employee directory & AI panels
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .employee-directory-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Single-column directory on small phones */
+  .employee-directory-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* AI grid (training, risk, etc.) already 1-col at 900px;
+     ensure no overflow on very small screens */
+  .employee-ai-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-ai-panel,
+  .analytics-ai-panel {
+    padding: 14px;
+  }
+
+  .employee-growth-panel {
+    padding: 16px;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Employee self panels
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .employee-self-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-self-panel,
+  .employee-growth-panel,
+  .employee-self-empty {
+    padding: 16px;
+  }
+
+  .employee-growth-header {
+    flex-direction: column;
+  }
+}
+
+/* ==========================================================================
+   Mobile — HR requests
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .employee-requests-panel,
+  .employee-requests-empty {
+    padding: 16px;
+  }
+
+  .manage-requests-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .employee-request-ai-box {
+    padding: 12px;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Analytics
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .analytics-panel {
+    padding: 14px;
+  }
+
+  .analytics-panel-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .analytics-bar-track {
+    height: 6px;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Chatbot
+   ========================================================================== */
+
+/*
+  The chatbot page (/chatbot) lives inside the dash shell.
+  These rules ensure the chat surface fills the available viewport height
+  and that the input bar doesn't get occluded by the mobile keyboard.
+*/
+@media (max-width: 768px) {
+  .chatbot-root {
+    height: calc(100dvh - 53px); /* subtract topbar height */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chatbot-input-bar {
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .chatbot-input {
+    font-size: 16px; /* prevent iOS auto-zoom */
+  }
+}
+
+/* ==========================================================================
+   Mobile — Safe-area & overscroll
+   ========================================================================== */
+
+/*
+  Ensures the bottom of the UI is not obscured by iOS home-indicator
+  or Android nav bar on devices with display cutouts.
+*/
+@media (max-width: 768px) {
+  .dash-shell {
+    min-height: 100dvh;
+  }
+
+  .auth-root {
+    min-height: 100dvh;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  /* Prevent sidebar and backdrop from interfering with overscroll bounce */
+  body {
+    overscroll-behavior: none;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Typography scale
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  /*
+    Cormorant Garamond display headings: tighten the clamp floor
+    so they don't overflow narrow viewports.
+  */
+  .auth-heading {
+    font-size: clamp(30px, 9vw, 46px);
+  }
+
+  .jobs-heading,
+  .job-detail-title {
+    font-size: clamp(26px, 8vw, 38px);
+  }
+
+  .apply-card-title {
+    font-size: 26px;
+  }
+
+  /* Stat values in application stats grid */
+  .application-stat-value {
+    font-size: 22px;
+  }
+
+  /* Reduce candidate dashboard application card padding */
+  .candidate-dashboard-application-card {
+    padding: 12px;
+  }
+}
+
+/* ==========================================================================
+   Mobile — Topbar actions
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  /* Hide text labels in topbar, keep icon-only buttons */
+  .topbar-actions {
+    gap: 8px;
+  }
+
+  /* Theme toggle: hide label text on very small screens */
+  .theme-toggle span:not(svg) {
+    display: none;
+  }
+
+  .theme-toggle {
+    padding: 8px;
+    border-radius: 50%;
+    min-width: 36px;
+    min-height: 36px;
+    justify-content: center;
+  }
+}

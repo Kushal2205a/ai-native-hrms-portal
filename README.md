@@ -16,7 +16,7 @@ This build is AI native. AI helps during everyday HR work: reviewing application
 - Employees can submit HR requests. Optional help turning rough notes into a clear request
 - Work as Admin, HR, Employee, or Candidate with role based access
 
-Payroll, benefits, tax, HR chatbot, and automated candidate tests are not in this version.
+Payroll, benefits, tax, HR chatbot, and automated candidate tests are not in this version yet.
 
 ## Is it fully automated?
 

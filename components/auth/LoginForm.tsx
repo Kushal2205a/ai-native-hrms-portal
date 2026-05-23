@@ -57,7 +57,8 @@ export default function LoginForm() {
       }
 
       const redirect = ROLE_REDIRECT[profile.role] ?? '/dashboard/candidate';
-      router.push(redirect);
+      router.replace(redirect);
+      router.refresh();
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {

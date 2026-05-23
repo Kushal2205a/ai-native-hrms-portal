@@ -15,11 +15,7 @@ const requestTypes = [
   { value: 'general', label: 'General' },
 ];
 
-const priorities = [
-  { value: 'normal', label: 'Normal' },
-  { value: 'low', label: 'Low' },
-  { value: 'high', label: 'High' },
-];
+const today = new Date().toISOString().split('T')[0];
 
 const leaveTypes = [
   { value: 'casual', label: 'Casual leave' },
@@ -51,7 +47,7 @@ export function EmployeeRequestForm() {
   const router = useRouter();
 
   const [requestType, setRequestType] = useState('leave');
-  const [priority, setPriority] = useState('normal');
+  
   const [leaveType, setLeaveType] = useState('casual');
 
   const [roughText, setRoughText] = useState('');
@@ -90,7 +86,7 @@ export function EmployeeRequestForm() {
       }
 
       setRequestType(result.draft.request_type);
-      setPriority(result.draft.priority);
+      
 
       if (result.draft.request_type === 'leave') {
         setLeaveType(result.draft.leave_type ?? 'casual');
@@ -121,7 +117,7 @@ export function EmployeeRequestForm() {
         setReason('');
         setStartDate('');
         setEndDate('');
-        setPriority('normal');
+      
         setLeaveType('casual');
         setRequestType('leave');
         router.refresh();
@@ -170,20 +166,7 @@ export function EmployeeRequestForm() {
             </select>
           </label>
 
-          <label>
-            <span>Priority</span>
-            <select
-              name="priority"
-              value={priority}
-              onChange={(event) => setPriority(event.target.value)}
-            >
-              {priorities.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
+      
         </div>
 
         {isLeaveRequest ? (
@@ -219,6 +202,7 @@ export function EmployeeRequestForm() {
                 <input
                   name="start_date"
                   type="date"
+                  min = {today}
                   value={startDate}
                   onChange={(event) => setStartDate(event.target.value)}
                 />
@@ -229,6 +213,7 @@ export function EmployeeRequestForm() {
                 <input
                   name="end_date"
                   type="date"
+                  min={startDate || today}
                   value={endDate}
                   onChange={(event) => setEndDate(event.target.value)}
                 />

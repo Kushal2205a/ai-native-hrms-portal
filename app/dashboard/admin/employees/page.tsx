@@ -138,8 +138,8 @@ type EmployeesPageProps = {
 export default async function AdminEmployeesPage({
     searchParams,
 }: EmployeesPageProps) {
-    const session = await requireDashboardSession('admin');
-  const supabase = await createClient();
+    await requireDashboardSession('admin');
+    const supabase = await createClient();
 
     const params = await searchParams;
 

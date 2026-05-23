@@ -12,8 +12,6 @@ import {
   CalendarCheck,
   CheckCircle2,
   TrendingUp,
-  Users,
-  UserCheck,
 } from 'lucide-react';
 
 export const metadata = {
@@ -164,9 +162,7 @@ function formatDateTime(value: string) {
   });
 }
 
-function formatLabel(value: string) {
-  return value.replaceAll('_', ' ');
-}
+
 
 function getPercent(value: number, total: number) {
   if (!total) return 0;
@@ -196,7 +192,7 @@ function mergeSavedInsight(
 }
 
 export default async function AdminAnalyticsPage() {
-  const session = await requireDashboardSession('admin');
+  await requireDashboardSession('admin');
   const supabase = await createClient();
 
   const { data: applications } = await supabase

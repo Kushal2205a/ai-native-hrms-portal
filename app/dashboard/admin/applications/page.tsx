@@ -2,7 +2,6 @@ import ApplicationsReviewList from '@/components/recruitment/ApplicationsReviewL
 import { createClient } from '@/lib/supabase/server';
 import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
 import type { ApplicationReview } from '@/types/database';  
-import { GenerateScreeningButton } from '@/components/recruitment/GenerateScreeningButton';
 type ApplicationStat = {
   label: string;
   value: number;
@@ -12,7 +11,7 @@ export const metadata = {
   title: 'Applications',
 };
 
-export default async function HRApplicationsPage() {
+export default async function AdminApplicationsPage() {
   await requireDashboardSession('admin');
   const supabase = await createClient();
 

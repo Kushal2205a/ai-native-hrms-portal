@@ -65,7 +65,7 @@ function formatStatus(status: string) {
 }
 
 export default async function AdminInterviewsPage() {
-  const session = await requireDashboardSession('admin');
+  await requireDashboardSession('admin');
   const supabase = await createClient();
 
   const { data: interviews } = await supabase

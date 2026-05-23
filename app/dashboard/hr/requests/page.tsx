@@ -127,7 +127,7 @@ function getPriorityClass(priority: string) {
 }
 
 export default async function HRRequestsPage() {
-  const session = await requireDashboardSession('admin', 'hr');
+  await requireDashboardSession('hr');
   const supabase = await createClient();
 
   const { data: requests } = await supabase

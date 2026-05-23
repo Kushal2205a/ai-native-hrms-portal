@@ -46,16 +46,6 @@ type EmployeeDirectoryItem = {
         name: string | null;
     }[]
     | null;
-
-    profile_id: string | null;
-    profiles:
-    | {
-        role: string | null;
-    }
-    | {
-        role: string | null;
-    }[]
-    | null;
 };
 
 function getDepartmentName(employee: EmployeeDirectoryItem) {
@@ -78,13 +68,13 @@ function formatDate(value: string) {
     });
 }
 function formatDateTime(value: string) {
-    return new Date(value).toLocaleString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    });
+  return new Date(value).toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
 
 function getEmployeeSignal(employee: EmployeeDirectoryItem) {
@@ -148,8 +138,8 @@ type EmployeesPageProps = {
 export default async function HREmployeesPage({
     searchParams,
 }: EmployeesPageProps) {
-    const session = await requireDashboardSession('admin', 'hr');
-  const supabase = await createClient();
+    await requireDashboardSession('hr');
+    const supabase = await createClient();
 
     const params = await searchParams;
 
@@ -161,35 +151,23 @@ export default async function HREmployeesPage({
         .from('employees')
         .select(
             `
-            id,
-            full_name,
-            email,
-            job_title,
-            employment_status,
-            employment_type,
-            location,
-            joined_at,
-            performance_score,
-            profile_id,
-            departments (
-            name
-            ),
-            profiles (
-            role
-            )
-        `
+      id,
+      full_name,
+      email,
+      job_title,
+      employment_status,
+      employment_type,
+      location,
+      joined_at,
+      performance_score,
+      departments (
+        name
+      )
+    `
         )
         .order('full_name', { ascending: true });
 
-    const allEmployeeItems = (employees ?? []) as EmployeeDirectoryItem[];
-
-    const employeeItems = allEmployeeItems.filter((employee) => {
-        const linkedProfile = Array.isArray(employee.profiles)
-            ? employee.profiles[0]
-            : employee.profiles;
-
-        return !employee.profile_id || linkedProfile?.role === 'employee';
-    });
+    const employeeItems = (employees ?? []) as EmployeeDirectoryItem[];
 
 
 
@@ -197,16 +175,15 @@ export default async function HREmployeesPage({
     const { data: latestInsight } = await supabase
         .from('ai_workforce_insights')
         .select(
-            `
-                id,
-                summary,
-                strengths,
-                attention_areas,
-                suggested_actions,
-                generated_at
-            `
+        `
+            id,
+            summary,
+            strengths,
+            attention_areas,
+            suggested_actions,
+            generated_at
+        `
         )
-        .eq('scope', 'hr')
         .order('generated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -331,14 +308,14 @@ export default async function HREmployeesPage({
             <section className="glass-card employee-ai-panel">
                 <div className="employee-ai-panel-header">
                     <div>
-                        <p className="s-tag dash-panel-tag">AI Workforce Insight</p>
-                        <p className="employee-ai-summary">{workforceInsight.summary}</p>
+                    <p className="s-tag dash-panel-tag">AI Workforce Insight</p>
+                    <p className="employee-ai-summary">{workforceInsight.summary}</p>
 
-                        <p className="employee-ai-meta">
-                            {insightGeneratedAt
-                                ? `Last generated ${formatDateTime(insightGeneratedAt)}`
-                                : 'Showing fallback insight from current employee data.'}
-                        </p>
+                    <p className="employee-ai-meta">
+                        {insightGeneratedAt
+                        ? `Last generated ${formatDateTime(insightGeneratedAt)}`
+                        : 'Showing fallback insight from current employee data.'}
+                    </p>
                     </div>
 
                     <RegenerateWorkforceInsightButton scope="hr" />
@@ -407,7 +384,7 @@ export default async function HREmployeesPage({
                             <p className="employee-filter-label">Department</p>
                             <div className="employee-filter-row">
                                 <Link
-                                    href={buildEmployeeFilterHref('/dashboard/admin/employees', 'department', 'all', {
+                                    href={buildEmployeeFilterHref('/dashboard/hr/employees', 'department', 'all', {
                                         status: selectedStatus,
                                         department: selectedDepartment,
                                         signal: selectedSignal,
@@ -421,7 +398,7 @@ export default async function HREmployeesPage({
                                 {departmentOptions.map((department) => (
                                     <Link
                                         key={department}
-                                        href={buildEmployeeFilterHref('/dashboard/admin/employees', 'department', department, {
+                                        href={buildEmployeeFilterHref('/dashboard/hr/employees', 'department', department, {
                                             status: selectedStatus,
                                             department: selectedDepartment,
                                             signal: selectedSignal,
@@ -448,7 +425,7 @@ export default async function HREmployeesPage({
                                 ].map(([value, label]) => (
                                     <Link
                                         key={value}
-                                        href={buildEmployeeFilterHref('/dashboard/admin/employees', 'signal', value, {
+                                        href={buildEmployeeFilterHref('/dashboard/hr/employees', 'signal', value, {
                                             status: selectedStatus,
                                             department: selectedDepartment,
                                             signal: selectedSignal,

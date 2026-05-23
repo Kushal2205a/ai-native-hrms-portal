@@ -14,7 +14,7 @@ export default async function DashboardShell({
   }
 
   return (
-    <DashboardClient role={session.role} fullName={session.fullName}>
+    <DashboardClient key = {session.userId} role={session.role} fullName={session.fullName}>
       {children}
     </DashboardClient>
   );

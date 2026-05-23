@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { regenerateWorkforceInsight } from '@/lib/actions/employeeInsights';
 
@@ -12,10 +12,12 @@ export function RegenerateWorkforceInsightButton({
   scope,
 }: RegenerateWorkforceInsightButtonProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  function handleRegenerate() {
-    startTransition(async () => {
+  async function handleRegenerate() {
+    try {
+      setIsGenerating(true);
+
       const result = await regenerateWorkforceInsight(scope);
 
       if (!result.success) {
@@ -24,7 +26,12 @@ export function RegenerateWorkforceInsightButton({
       }
 
       router.refresh();
-    });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to regenerate workforce insight.');
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
   return (
@@ -32,9 +39,9 @@ export function RegenerateWorkforceInsightButton({
       type="button"
       className="employee-ai-regenerate-button"
       onClick={handleRegenerate}
-      disabled={isPending}
+      disabled={isGenerating}
     >
-      {isPending ? 'Generating...' : 'Regenerate insight'}
+      {isGenerating ? 'Generating...' : 'Regenerate insight'}
     </button>
   );
 }

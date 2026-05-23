@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   regenerateAnalyticsInsight,
@@ -15,10 +15,12 @@ export function RegenerateAnalyticsInsightButton({
   scope,
 }: RegenerateAnalyticsInsightButtonProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  function handleRegenerate() {
-    startTransition(async () => {
+  async function handleRegenerate() {
+    try {
+      setIsGenerating(true);
+
       const result = await regenerateAnalyticsInsight(scope);
 
       if (!result.success) {
@@ -27,7 +29,12 @@ export function RegenerateAnalyticsInsightButton({
       }
 
       router.refresh();
-    });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to regenerate insight.');
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
   return (
@@ -35,9 +42,9 @@ export function RegenerateAnalyticsInsightButton({
       type="button"
       className="analytics-ai-regenerate-button"
       onClick={handleRegenerate}
-      disabled={isPending}
+      disabled={isGenerating}
     >
-      {isPending ? 'Generating...' : 'Regenerate insight'}
+      {isGenerating ? 'Generating...' : 'Regenerate insight'}
     </button>
   );
 }

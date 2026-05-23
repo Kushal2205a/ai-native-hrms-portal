@@ -5,9 +5,6 @@ import {
   FileText,
   CalendarCheck,
   BarChart2,
-  AlertTriangle,
-  MessageSquare,
-  Settings,
   ClipboardList,
   UserCircle,
 } from 'lucide-react';
@@ -48,11 +45,10 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Overview',      href: '/dashboard/hr',             icon: LayoutDashboard },
     { label: 'Job Postings',  href: '/recruitment/jobs',         icon: Briefcase },
     { label: 'Applications',  href: '/dashboard/hr/applications',  icon: FileText },
-    { label: 'Interviews',    href: '/recruitment/interviews',    icon: CalendarCheck },
-    { label: 'Employees',     href: '/employees',                icon: Users },
-    { label: 'Analytics',     href: '/analytics',                icon: BarChart2 },
-    { label: 'Requests',        href: '/dashboard/admin/requests',    icon: ClipboardList },
-    {label : 'Interviews', href : '/dashboard/hr/interviews', icon: CalendarCheck}
+    { label: 'Interviews',    href: '/dashboard/hr/interviews',    icon: CalendarCheck },
+    { label: 'Employees',     href: '/dashboard/hr/employees',                icon: Users },
+    { label: 'Analytics',     href: '/dashboard/hr/analytics',                icon: BarChart2 },
+    { label: 'Requests',        href: '/dashboard/hr/requests',    icon: ClipboardList }
   ],
   employee: [
     { label: 'Overview',      href: '/dashboard/employee',       icon: LayoutDashboard },

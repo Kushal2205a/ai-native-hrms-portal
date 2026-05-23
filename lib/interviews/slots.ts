@@ -18,9 +18,7 @@ const WORK_END_HOUR = 17;
 const LUNCH_START_HOUR = 12;
 const LUNCH_END_HOUR = 13;
 
-function pad(value: number) {
-  return value.toString().padStart(2, '0');
-}
+
 
 function formatSlotLabel(date: Date) {
   return date.toLocaleString('en-IN', {

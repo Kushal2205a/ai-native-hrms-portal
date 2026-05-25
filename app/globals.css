@@ -1154,35 +1154,17 @@ html {
    Candidate profile
    ========================================================================== */
 
-.candidate-page-sub {
-  font-family: var(--sans);
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 300;
-  max-width: 640px;
-  line-height: 1.6;
-}
-
-.candidate-profile-card {
-  padding: 28px;
-  max-width: 920px;
-}
 
 .candidate-profile-form {
-  width: 100%;
-}
-
-.candidate-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
 .candidate-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 0;
 }
 
 .candidate-field-full {
@@ -1195,6 +1177,7 @@ html {
   color: var(--muted);
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  font-weight: 400;
 }
 
 .candidate-field input,
@@ -1210,26 +1193,43 @@ html {
   padding: 12px 14px;
   outline: none;
   transition: border-color 0.2s, background 0.2s;
+  resize: vertical;
 }
 
 .candidate-field textarea {
-  resize: vertical;
   min-height: 180px;
-  line-height: 1.6;
-}
-
-.candidate-field input::placeholder,
-.candidate-field textarea::placeholder {
-  color: var(--muted);
-  opacity: 0.5;
+  line-height: 1.65;
 }
 
 .candidate-field input:focus,
 .candidate-field textarea:focus {
   border-color: var(--g-glow);
-  background: #ffffff08;
+  background: rgba(255,255,255,0.05);
 }
 
+/* Resume Upload */
+.candidate-profile-input {
+  background: var(--dim);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.candidate-profile-helper {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.candidate-resume-parse-btn {
+  align-self: flex-start;
+  margin-top: -8px;
+}
+
+/* Skills */
 .candidate-skill-input-row {
   display: flex;
   gap: 8px;
@@ -1239,31 +1239,11 @@ html {
   flex: 1;
 }
 
-.candidate-skill-input-row button {
-  height: 44px;
-  padding: 0 16px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  font-family: var(--sans);
-  font-size: 13px;
-  color: #1a1613;
-  background: var(--g);
-  border: none;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.candidate-skill-input-row button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px #f2a38433;
-}
-
 .candidate-skill-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .candidate-skill-chip {
@@ -1271,107 +1251,69 @@ html {
   align-items: center;
   gap: 6px;
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink);
   background: #f2a38414;
   border: 1px solid var(--g-glow);
-  border-radius: 2px;
-  padding: 4px 9px;
+  border-radius: 4px;
+  padding: 6px 12px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .candidate-skill-chip:hover {
-  color: var(--red);
+  background: #c94a3a18;
   border-color: #c94a3a44;
+  color: var(--red);
 }
 
-.candidate-help-text {
-  font-family: var(--sans);
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 300;
-}
-
+/* Messages */
 .candidate-form-error,
 .candidate-form-success {
-  font-family: var(--sans);
-  font-size: 12px;
-  margin-top: 18px;
-  padding: 10px 12px;
+  padding: 12px 16px;
   border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .candidate-form-error {
   color: var(--red);
   background: #c94a3a18;
-  border: 1px solid #c94a3a33;
+  border: 1px solid #c94a3a44;
 }
 
 .candidate-form-success {
   color: var(--teal);
   background: #77c3c018;
-  border: 1px solid #77c3c033;
+  border: 1px solid #77c3c044;
 }
 
+/* Actions */
 .candidate-form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
-  padding-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid var(--border);
+  margin-top: 8px;
 }
 
-.candidate-form-actions button {
-  min-width: 160px;
-  min-height: 44px;
-  background: var(--g);
-  color: #1a1613;
-  border: none;
-  border-radius: 2px;
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+/* Light Theme Overrides */
+[data-theme='light'] .candidate-field input,
+[data-theme='light'] .candidate-field textarea,
+[data-theme='light'] .candidate-profile-input {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(20, 25, 35, 0.18);
 }
 
-.candidate-form-actions button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px #f2a38433;
+[data-theme='light'] .candidate-skill-chip {
+  background: rgba(155, 106, 40, 0.08);
+  border-color: rgba(155, 106, 40, 0.3);
 }
 
-.candidate-form-actions button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+[data-theme='light'] .candidate-skill-chip:hover {
+  background: rgba(169, 50, 50, 0.1);
+  border-color: rgba(169, 50, 50, 0.4);
 }
-
-@media (max-width: 760px) {
-  .candidate-profile-card {
-    padding: 22px;
-  }
-
-  .candidate-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .candidate-skill-input-row {
-    flex-direction: column;
-  }
-}
-
-.candidate-profile-shell {
-  width: 100%;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 32px;
-}
-
-.candidate-profile-header {
-  margin-bottom: 24px;
-}
-
 /* ==========================================================================
    Apply flow
    ========================================================================== */

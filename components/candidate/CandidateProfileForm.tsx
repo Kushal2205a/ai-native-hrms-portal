@@ -3,7 +3,7 @@
 import { useState, useTransition, type FormEvent, type KeyboardEvent } from 'react';
 import { upsertCandidateProfile } from '@/lib/actions/candidate';
 import type { CandidateProfile } from '@/types/database';
-
+import { uploadAndParseResume } from '@/lib/actions/resume';
 interface CandidateProfileFormProps {
   profile: CandidateProfile | null;
 }
@@ -23,6 +23,9 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
   const [portfolioUrl, setPortfolioUrl] = useState(profile?.portfolio_url ?? '');
   const [linkedinUrl, setLinkedinUrl] = useState(profile?.linkedin_url ?? '');
   const [githubUrl, setGithubUrl] = useState(profile?.github_url ?? '');
+
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
 
   function addSkill() {
     const value = skillInput.trim();
@@ -87,7 +90,87 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
   }
 
   return (
+
     <form className="candidate-profile-form" onSubmit={handleSubmit}>
+
+      <div className="candidate-profile-field">
+        <label className="candidate-profile-label">
+          Resume PDF
+        </label>
+
+        <input
+          type="file"
+          accept=".pdf"
+          className="candidate-profile-input"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+
+            if (file) {
+              setResumeFile(file);
+            }
+          }}
+        />
+
+        {resumeFile && (
+          <p className="candidate-profile-helper">
+            Selected: {resumeFile.name}
+          </p>
+        )}
+      </div>
+
+      <button
+        type="button"
+        className="btn-g"
+        disabled={!resumeFile || isUploadingResume}
+        onClick={async () => {
+          if (!resumeFile) return;
+
+          try {
+            setIsUploadingResume(true);
+
+            const formData = new FormData();
+
+            formData.append('resume', resumeFile);
+
+            const result = await uploadAndParseResume(formData);
+
+            setResumeText(result.resumeText);
+            setSkills(result.parsedData.skills ?? []);
+
+            setEducation(result.parsedData.education ?? '');
+
+            setExperienceYears(
+              result.parsedData.experience_years?.toString() ?? ''
+            );
+
+            setLinkedinUrl(
+              result.parsedData.linkedin_url ?? ''
+            );
+
+            setGithubUrl(
+              result.parsedData.github_url ?? ''
+            );
+
+            setPortfolioUrl(
+              result.parsedData.portfolio_url ?? ''
+            );
+
+            console.log(result.resumeText);
+
+            alert('Resume parsed successfully. Check terminal logs.');
+          } catch (error) {
+            console.error(error);
+
+            alert('Failed to parse resume.');
+          } finally {
+            setIsUploadingResume(false);
+          }
+        }}
+      >
+        {isUploadingResume
+          ? 'Parsing Resume...'
+          : 'Upload & Parse Resume'}
+      </button>
       <div className="candidate-form-grid">
         <label className="candidate-field candidate-field-full">
           <span>Resume Text</span>
@@ -183,9 +266,15 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
       {success ? <div className="candidate-form-success">{success}</div> : null}
 
       <div className="candidate-form-actions">
-        <button type="submit" disabled={isPending}>
+        <button
+          type="submit"
+          className="btn-g"
+          disabled={isPending}
+        >
           {isPending ? 'Saving...' : 'Save Profile'}
         </button>
+
+
       </div>
     </form>
   );

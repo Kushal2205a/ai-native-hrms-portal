@@ -85,7 +85,7 @@ export default function SignupForm() {
       <div className="auth-card glass-card">
         <div className="auth-brand">
           <span className="auth-pulse auth-pulse--teal" aria-hidden="true" />
-          <span className="s-tag">Saarthi HRMS</span>
+          <span className="s-tag">HRMS</span>
         </div>
 
         <h1 className="s-h auth-heading">

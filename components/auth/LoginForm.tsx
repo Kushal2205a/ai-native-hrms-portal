@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import DemoAccounts from './DemoAccounts';
 
 const ROLE_REDIRECT: Record<string, string> = {
   admin: '/dashboard/admin',
@@ -73,62 +74,76 @@ export default function LoginForm() {
         <div className="auth-bg-grid" />
       </div>
 
-      <div className="auth-card glass-card">
-        <div className="auth-brand">
-          <span className="auth-pulse auth-pulse--peach" aria-hidden="true" />
-          <span className="s-tag">HRMS</span>
+      <div className="auth-shell">
+
+        <div className="auth-card glass-card">
+          <div className="auth-brand">
+            <span className="auth-pulse auth-pulse--peach" aria-hidden="true" />
+            <span className="s-tag">HRMS</span>
+          </div>
+
+          <h1 className="s-h auth-heading">
+            Welcome<br />back.
+          </h1>
+          <p className="auth-sub">Sign in to your workspace</p>
+
+          <form onSubmit={handleLogin} className="auth-form" noValidate>
+            <div className="auth-field">
+              <label htmlFor="email" className="auth-label s-tag">Email</label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input"
+                placeholder="you@company.com"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="auth-field">
+              <label htmlFor="password" className="auth-label s-tag">Password</label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input"
+                placeholder="••••••••"
+                disabled={loading}
+              />
+            </div>
+
+            {error && (
+              <p className="auth-error" role="alert">{error}</p>
+            )}
+
+            <button type="submit" className="btn-g auth-submit" disabled={loading}>
+              {loading ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+
+          <p className="auth-footer">
+            No account?{' '}
+            <Link href="/signup" className="auth-link">Create one</Link>
+          </p>
         </div>
 
-        <h1 className="s-h auth-heading">
-          Welcome<br />back.
-        </h1>
-        <p className="auth-sub">Sign in to your workspace</p>
+        <DemoAccounts
+          onDemoSelect={(demoEmail, demoPassword) => {
+            setEmail(demoEmail);
+            setPassword(demoPassword);
 
-        <form onSubmit={handleLogin} className="auth-form" noValidate>
-          <div className="auth-field">
-            <label htmlFor="email" className="auth-label s-tag">Email</label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="auth-input"
-              placeholder="you@company.com"
-              disabled={loading}
-            />
-          </div>
-
-          <div className="auth-field">
-            <label htmlFor="password" className="auth-label s-tag">Password</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="auth-input"
-              placeholder="••••••••"
-              disabled={loading}
-            />
-          </div>
-
-          {error && (
-            <p className="auth-error" role="alert">{error}</p>
-          )}
-
-          <button type="submit" className="btn-g auth-submit" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
-
-        <p className="auth-footer">
-          No account?{' '}
-          <Link href="/signup" className="auth-link">Create one</Link>
-        </p>
+            // Optional: clear any previous error
+            setError(null);
+          }}
+        />
       </div>
+
     </main>
   );
 }

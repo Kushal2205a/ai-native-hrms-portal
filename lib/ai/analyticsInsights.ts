@@ -1,3 +1,5 @@
+import { normalizeSummary } from '@/lib/utils';
+
 export type AnalyticsInsightScope = 'admin' | 'hr';
 
 export type AnalyticsMetrics = {
@@ -142,7 +144,7 @@ export async function generateAnalyticsInsight(
               role: 'user',
               content: JSON.stringify({
                 instruction:
-                  'Analyze these HRMS analytics metrics and return JSON with keys: summary, recruitment_insights, workforce_insights, suggested_actions. Each array should contain 2 to 4 concise strings. Use soft language like review, monitor, consider, may indicate.',
+                  'Analyze these HRMS analytics metrics and return JSON with keys: summary (a single concise string), recruitment_insights (array of 2 to 4 strings), workforce_insights (array of 2 to 4 strings), suggested_actions (array of 2 to 4 strings). Use soft language like review, monitor, consider, may indicate.',
                 metrics,
               }),
             },
@@ -170,7 +172,7 @@ export async function generateAnalyticsInsight(
     const parsed = JSON.parse(jsonText) as Partial<AnalyticsInsight>;
 
     return {
-      summary: parsed.summary || fallback.summary,
+      summary: normalizeSummary(parsed.summary) || fallback.summary,
       recruitment_insights: parsed.recruitment_insights?.length
         ? parsed.recruitment_insights
         : fallback.recruitment_insights,

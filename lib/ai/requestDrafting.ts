@@ -17,6 +17,7 @@ export type AIRequestDraft = {
   description: string;
   leave_type?: 'casual' | 'sick' | 'earned' | 'unpaid' | 'other';
   reason?: string;
+  estimated_days?: number;
 };
 
 const requestTypes = [
@@ -59,34 +60,51 @@ function extractJsonObject(text: string) {
 function inferFallbackDraft(input: RequestDraftInput): AIRequestDraft {
   const text = input.rough_text.trim();
   const lower = text.toLowerCase();
+  const medicalKeywords = [
+  'sick',
+  'fever',
+  'ill',
+  'illness',
+  'hospital',
+  'doctor',
+  'medical',
+  'diarrhea',
+  'piles',
+  'surgery',
+  'injury',
+  'health',
+];
 
+  const isMedicalLeave = medicalKeywords.some(keyword =>
+    lower.includes(keyword)
+  );
   const requestType: AIRequestDraft['request_type'] =
     lower.includes('leave') ||
-    lower.includes('sick') ||
-    lower.includes('vacation') ||
-    lower.includes('day off')
+      lower.includes('sick') ||
+      lower.includes('vacation') ||
+      lower.includes('day off')
       ? 'leave'
       : lower.includes('wfh') || lower.includes('work from home') || lower.includes('remote')
         ? 'work_from_home'
         : lower.includes('salary slip') ||
-            lower.includes('experience letter') ||
-            lower.includes('certificate') ||
-            lower.includes('document')
+          lower.includes('experience letter') ||
+          lower.includes('certificate') ||
+          lower.includes('document')
           ? 'document'
           : lower.includes('salary') ||
-              lower.includes('payroll') ||
-              lower.includes('payslip') ||
-              lower.includes('tax')
+            lower.includes('payroll') ||
+            lower.includes('payslip') ||
+            lower.includes('tax')
             ? 'payroll'
             : lower.includes('laptop') ||
-                lower.includes('mouse') ||
-                lower.includes('keyboard') ||
-                lower.includes('equipment')
+              lower.includes('mouse') ||
+              lower.includes('keyboard') ||
+              lower.includes('equipment')
               ? 'equipment'
               : lower.includes('profile') ||
-                  lower.includes('name') ||
-                  lower.includes('phone') ||
-                  lower.includes('address')
+                lower.includes('name') ||
+                lower.includes('phone') ||
+                lower.includes('address')
                 ? 'profile_update'
                 : isRequestType(input.selected_request_type)
                   ? input.selected_request_type
@@ -94,8 +112,8 @@ function inferFallbackDraft(input: RequestDraftInput): AIRequestDraft {
 
   const priority: AIRequestDraft['priority'] =
     lower.includes('urgent') ||
-    lower.includes('asap') ||
-    lower.includes('immediately')
+      lower.includes('asap') ||
+      lower.includes('immediately')
       ? 'high'
       : 'normal';
 
@@ -105,7 +123,7 @@ function inferFallbackDraft(input: RequestDraftInput): AIRequestDraft {
       priority,
       title: 'Leave request',
       description: text,
-      leave_type: lower.includes('sick') ? 'sick' : 'casual',
+      leave_type: isMedicalLeave ? 'sick' : 'casual',
       reason: text,
     };
   }
@@ -196,19 +214,69 @@ export async function generateRequestDraft(
             {
               role: 'system',
               content:
-                'You are an HRMS request drafting assistant. Convert rough employee text into a clear HR request draft. Return JSON only. Do not approve, reject, or submit requests. Do not invent leave dates.',
+                `
+                You are an HRMS request drafting assistant.
+
+                Convert rough employee text into professional HR wording.
+
+                Rules:
+                - Rewrite the employee's text into clear, polite, workplace-appropriate language.
+                - Preserve intent.
+                - Do not invent dates, approvals, or policy information.
+                - Keep descriptions concise.
+                - Return valid JSON only.
+                `,
             },
             {
               role: 'user',
               content: JSON.stringify({
-                instruction:
-                  'Return JSON with keys: request_type, priority, title, description, leave_type, reason. request_type must be one of leave, work_from_home, document, payroll, profile_update, equipment, general. priority must be low, normal, or high. For leave requests, include leave_type and reason. Do not include start_date or end_date.',
+                instruction: `
+Return JSON with:
+
+{
+  request_type,
+  priority,
+  title,
+  description,
+  leave_type,
+  reason
+}
+
+request_type must be one of:
+leave, work_from_home, document, payroll,
+profile_update, equipment, general.
+
+priority must be:
+low, normal, high
+
+For leave requests:
+- title should be a short HR-friendly title.
+- description should be a complete professional request.
+- reason should be a concise professional summary.
+- leave_type must be one of:
+  casual, sick, earned, unpaid, other
+
+Examples:
+
+Input:
+"I have diarrhea and need leave for 10 days"
+
+Output:
+{
+  "request_type": "leave",
+  "title": "Medical Leave Request",
+  "description": "I would like to request leave due to a medical condition requiring recovery.",
+  "reason": "Medical condition requiring recovery",
+  "leave_type": "sick",
+  
+}
+`,
                 rough_text: input.rough_text,
                 selected_request_type: input.selected_request_type,
               }),
             },
           ],
-          temperature: 0.2,
+          temperature: 0.6,
           max_tokens: 500,
         }),
       }

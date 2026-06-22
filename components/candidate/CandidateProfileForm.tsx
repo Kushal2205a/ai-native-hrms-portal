@@ -3,7 +3,9 @@
 import { useState, useTransition, type FormEvent, type KeyboardEvent } from 'react';
 import { upsertCandidateProfile } from '@/lib/actions/candidate';
 import type { CandidateProfile } from '@/types/database';
+import type { VerificationResult } from '@/lib/ai/resume-verifier';
 import { uploadAndParseResume } from '@/lib/actions/resume';
+
 interface CandidateProfileFormProps {
   profile: CandidateProfile | null;
 }
@@ -13,7 +15,6 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const [resumeText, setResumeText] = useState(profile?.resume_text ?? '');
   const [skills, setSkills] = useState<string[]>(profile?.skills ?? []);
   const [skillInput, setSkillInput] = useState('');
   const [experienceYears, setExperienceYears] = useState(
@@ -26,6 +27,11 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
 
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [resumeText, setResumeText] = useState(profile?.resume_text ?? '');
+  const [resumeUploaded, setResumeUploaded] = useState(Boolean(profile?.parsed_resume_json));
+  const [verification, setVerification] = useState<VerificationResult | null>(
+    (profile?.parsed_resume_json as Record<string, unknown>)?.verification as VerificationResult ?? null
+  );
 
   function addSkill() {
     const value = skillInput.trim();
@@ -72,7 +78,13 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
 
     startTransition(async () => {
       try {
+        const parsedResumeJson: Record<string, unknown> = {
+          ...(profile?.parsed_resume_json as Record<string, unknown> ?? {}),
+          verification,
+        };
+
         await upsertCandidateProfile({
+          parsed_resume_json: verification ? parsedResumeJson : null,
           resume_text: resumeText.trim() || null,
           skills,
           experience_years: parsedExperience,
@@ -90,7 +102,6 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
   }
 
   return (
-
     <form className="candidate-profile-form" onSubmit={handleSubmit}>
 
       <div className="candidate-profile-field">
@@ -136,7 +147,6 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
 
             setResumeText(result.resumeText);
             setSkills(result.parsedData.skills ?? []);
-
             setEducation(result.parsedData.education ?? '');
 
             setExperienceYears(
@@ -155,9 +165,8 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
               result.parsedData.portfolio_url ?? ''
             );
 
-            console.log(result.resumeText);
-
-            alert('Resume parsed successfully. Check terminal logs.');
+            setVerification(result.verification);
+            setResumeUploaded(true);
           } catch (error) {
             console.error(error);
 
@@ -171,17 +180,83 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
           ? 'Parsing Resume...'
           : 'Upload & Parse Resume'}
       </button>
-      <div className="candidate-form-grid">
-        <label className="candidate-field candidate-field-full">
-          <span>Resume Text</span>
-          <textarea
-            value={resumeText}
-            onChange={(e) => setResumeText(e.target.value)}
-            placeholder="Paste your resume text here. Later, this will be parsed and screened by AI."
-            rows={10}
-          />
-        </label>
 
+      {resumeUploaded && verification ? (
+        <div className="glass-card resume-verification-section">
+          <p className="s-tag resume-verification-tag">Resume Verification</p>
+          <h3 className="resume-verification-title">Verification Status</h3>
+
+          <div className="resume-verification-list">
+            <div className="resume-verification-item">
+              <span className="resume-verification-icon resume-verification-icon--pass">✓</span>
+              <span>Resume uploaded</span>
+            </div>
+
+            <div className="resume-verification-item">
+              <span className={`resume-verification-icon ${
+                verification.resume_name_match || verification.verification_status === 'verified'
+                  ? 'resume-verification-icon--pass'
+                  : 'resume-verification-icon--fail'
+              }`}>
+                {verification.resume_name_match || verification.verification_status === 'verified' ? '✓' : '⚠'}
+              </span>
+              <span>
+                {verification.resume_name_match || verification.verification_status === 'verified'
+                  ? 'Name matches profile'
+                  : 'Name mismatch detected'}
+              </span>
+            </div>
+
+            {!verification.resume_name_match && verification.verification_status !== 'verified' ? (
+              <div className="resume-verification-detail">
+                <p>Profile Name: {verification.profile_name}</p>
+                <p>Resume Name: {verification.resume_name}</p>
+                <p className="resume-verification-status-label">Status: Needs Review</p>
+              </div>
+            ) : null}
+
+            <div className="resume-verification-item">
+              <span className={`resume-verification-icon ${
+                verification.linkedin_url_found && verification.linkedin_url_valid
+                  ? 'resume-verification-icon--pass'
+                  : verification.linkedin_url_found
+                    ? 'resume-verification-icon--warn'
+                    : 'resume-verification-icon--muted'
+              }`}>
+                {verification.linkedin_url_found && verification.linkedin_url_valid ? '✓' : verification.linkedin_url_found ? '⚠' : '—'}
+              </span>
+              <span>
+                {verification.linkedin_url_found && verification.linkedin_url_valid
+                  ? 'LinkedIn URL found'
+                  : verification.linkedin_url_found
+                    ? 'LinkedIn URL appears invalid'
+                    : 'No LinkedIn URL found'}
+              </span>
+            </div>
+
+            <div className="resume-verification-item">
+              <span className={`resume-verification-icon ${
+                githubUrl ? 'resume-verification-icon--pass' : 'resume-verification-icon--muted'
+              }`}>
+                {githubUrl ? '✓' : '—'}
+              </span>
+              <span>
+                {githubUrl ? 'GitHub URL found' : 'No GitHub URL found'}
+              </span>
+            </div>
+          </div>
+
+          {verification.verification_notes?.length ? (
+            <div className="resume-verification-notes">
+              {verification.verification_notes.map((note) => (
+                <p key={note}>{note}</p>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="candidate-form-grid">
         <label className="candidate-field">
           <span>Experience Years</span>
           <input
@@ -210,7 +285,7 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
               onKeyDown={handleSkillKeyDown}
               placeholder="Type a skill and press Enter"
             />
-            <button type="button" onClick={addSkill}>
+            <button type="button" className="candidate-skill-add-btn" onClick={addSkill}>
               Add
             </button>
           </div>
@@ -273,8 +348,6 @@ export default function CandidateProfileForm({ profile }: CandidateProfileFormPr
         >
           {isPending ? 'Saving...' : 'Save Profile'}
         </button>
-
-
       </div>
     </form>
   );

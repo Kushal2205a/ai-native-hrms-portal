@@ -18,6 +18,35 @@ export default async function HRApplicationsPage() {
   const { data: applications } = await supabase.rpc('get_application_reviews');
   const applicationStatsItems = (applications ?? []) as ApplicationReview[];
 
+  const candidateIds = [...new Set(
+    applicationStatsItems.map((a) => a.candidate_id).filter(Boolean)
+  )];
+
+  let verificationData: Record<string, { verification_status: string | null; profile_name: string | null; resume_name: string | null; linkedin_url_found: boolean; linkedin_url_valid: boolean }> = {};
+
+  if (candidateIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('candidate_profiles')
+      .select('id, parsed_resume_json')
+      .in('id', candidateIds);
+
+    if (profiles) {
+      for (const profile of profiles) {
+        const json = profile.parsed_resume_json as Record<string, unknown> | null;
+        const verification = json?.verification as Record<string, unknown> | null;
+        if (verification) {
+          verificationData[profile.id] = {
+            verification_status: (verification.verification_status as string) ?? null,
+            profile_name: (verification.profile_name as string) ?? null,
+            resume_name: (verification.resume_name as string) ?? null,
+            linkedin_url_found: Boolean(verification.linkedin_url_found),
+            linkedin_url_valid: Boolean(verification.linkedin_url_valid),
+          };
+        }
+      }
+    }
+  }
+
   const totalApplications = applicationStatsItems.length;
 
   const aiScreenedCount = applicationStatsItems.filter(
@@ -70,7 +99,10 @@ export default async function HRApplicationsPage() {
       </div>
 
       <section className="glass-card dash-panel">
-        <ApplicationsReviewList applications={(applications ?? []) as ApplicationReview[]} />
+        <ApplicationsReviewList
+          applications={(applications ?? []) as ApplicationReview[]}
+          verificationData={verificationData}
+        />
       </section>
     </>
   );

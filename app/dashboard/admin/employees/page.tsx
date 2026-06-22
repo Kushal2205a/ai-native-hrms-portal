@@ -1,6 +1,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
+import { normalizeSummary } from '@/lib/utils';
 import { buildFallbackWorkforceInsight } from '@/lib/ai/employeeInsights';
 import { RegenerateWorkforceInsightButton } from '@/components/employees/RegenerateWorkforceInsightButton';
 
@@ -193,7 +194,7 @@ export default async function AdminEmployeesPage({
 
     const workforceInsight = savedInsight
         ? {
-            summary: savedInsight.summary,
+            summary: normalizeSummary(savedInsight.summary),
             strengths: savedInsight.strengths?.length
                 ? savedInsight.strengths
                 : fallbackInsight.strengths,

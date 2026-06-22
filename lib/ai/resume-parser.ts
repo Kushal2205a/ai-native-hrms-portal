@@ -1,6 +1,7 @@
 import { runNvidiaChatCompletion } from './nvidia';
 
-type ParsedResume = {
+export type ParsedResume = {
+    full_name: string | null;
     skills: string[];
     education: string;
     experience_years: number | null;
@@ -19,6 +20,7 @@ Return ONLY valid JSON.
 
 Schema:
 {
+  "full_name": string | null,
   "skills": string[],
   "education": string,
   "experience_years": number | null,
@@ -28,6 +30,7 @@ Schema:
 }
 
 Rules:
+- Extract the candidate's full name exactly as it appears on the resume
 - skills must contain only technical/professional skills
 - experience_years should be an estimated total experience value
 - Count internships and full-time roles
@@ -60,7 +63,7 @@ ${resumeText}
             },
         ],
         temperature: 0.1,
-        max_tokens: 700,
+        max_tokens: 800,
     });
 
     try {

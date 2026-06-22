@@ -1,6 +1,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { requireDashboardSession } from '@/lib/auth/get-dashboard-session';
+import { normalizeSummary } from '@/lib/utils';
 import { RegenerateAnalyticsInsightButton } from '@/components/analytics/RegenerateAnalyticsInsightButton';
 import {
   buildFallbackAnalyticsInsight,
@@ -178,7 +179,7 @@ function mergeSavedInsight(
   }
 
   return {
-    summary: savedInsight.summary || fallbackInsight.summary,
+    summary: normalizeSummary(savedInsight.summary) || fallbackInsight.summary,
     recruitment_insights: savedInsight.recruitment_insights?.length
       ? savedInsight.recruitment_insights
       : fallbackInsight.recruitment_insights,

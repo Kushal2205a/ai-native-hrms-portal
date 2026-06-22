@@ -99,7 +99,8 @@ export async function runApplicationScreeningInternal(applicationId: string) {
         skills,
         experience_years,
         education,
-        resume_text
+        resume_text,
+        parsed_resume_json
       )
     `
     )
@@ -121,6 +122,14 @@ export async function runApplicationScreeningInternal(applicationId: string) {
   if (!job || !candidate) {
     throw new Error('Application is missing job or candidate profile data.');
   }
+
+  const parsed = candidate.parsed_resume_json as Record<string, unknown> | null;
+  const parsedSkills = parsed?.skills as string[] | undefined;
+  const parsedEducation = parsed?.education as string | undefined;
+  const parsedExperience = parsed?.experience_years as number | null | undefined;
+  const parsedFullName = parsed?.full_name as string | undefined;
+
+  const hasResumeText = Boolean(candidate.resume_text && candidate.resume_text.trim());
 
   const prompt = `
 You are an HR recruitment screening assistant.
@@ -149,11 +158,12 @@ Employment type: ${job.employment_type ?? 'Not specified'}
 Required skills: ${(job.required_skills ?? []).join(', ') || 'Not specified'}
 
 Candidate:
-Skills: ${(candidate.skills ?? []).join(', ') || 'Not specified'}
-Experience years: ${candidate.experience_years ?? 'Not specified'}
-Education: ${candidate.education ?? 'Not specified'}
-Resume text: ${candidate.resume_text ?? 'Not provided'}
+Name: ${parsedFullName ?? 'Not provided'}
+Skills: ${(parsedSkills ?? candidate.skills ?? []).join(', ') || 'Not specified'}
+Experience years: ${parsedExperience ?? candidate.experience_years ?? 'Not specified'}
+Education: ${parsedEducation ?? candidate.education ?? 'Not specified'}
 Cover note: ${application.cover_note ?? 'Not provided'}
+${hasResumeText ? `Resume text: ${candidate.resume_text}` : ''}
 `;
 
   const aiResponse = await runNvidiaChatCompletion({
@@ -173,8 +183,8 @@ Cover note: ${application.cover_note ?? 'Not provided'}
   });
 
   const jsonText = extractJson(aiResponse);
-  const parsed = JSON.parse(jsonText);
-  const screening = validateScreeningPayload(parsed);
+  const screeningJson = JSON.parse(jsonText);
+  const screening = validateScreeningPayload(screeningJson);
 
   const { error: upsertError } = await supabase
     .from('application_screenings')

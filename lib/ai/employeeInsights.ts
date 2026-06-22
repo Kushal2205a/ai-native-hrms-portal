@@ -1,3 +1,5 @@
+import { normalizeSummary } from '@/lib/utils';
+
 export type EmployeeInsightInput = {
   full_name: string;
   job_title: string | null;
@@ -168,7 +170,7 @@ export async function generateWorkforceInsight(
               role: 'user',
               content: JSON.stringify({
                 instruction:
-                  'Analyze this workforce data and return JSON with keys: summary, strengths, attention_areas, suggested_actions. Each array should contain 2 to 4 concise strings. Mention employee names when useful. Use soft language like may benefit, consider, review, monitor.',
+                  'Analyze this workforce data and return JSON with keys: summary (a single concise string), strengths (array of 2 to 4 strings), attention_areas (array of 2 to 4 strings), suggested_actions (array of 2 to 4 strings). Mention employee names when useful. Use soft language like may benefit, consider, review, monitor.',
                 employees: employeePayload,
               }),
             },
@@ -196,7 +198,7 @@ export async function generateWorkforceInsight(
     const parsed = JSON.parse(jsonText) as Partial<WorkforceInsight>;
 
     return {
-      summary: parsed.summary || fallback.summary,
+      summary: normalizeSummary(parsed.summary) || fallback.summary,
       strengths: parsed.strengths?.length ? parsed.strengths : fallback.strengths,
       attention_areas: parsed.attention_areas?.length
         ? parsed.attention_areas

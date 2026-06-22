@@ -1,3 +1,5 @@
+import { normalizeSummary } from '@/lib/utils';
+
 export type EmployeeGrowthInsightInput = {
   full_name: string;
   email: string | null;
@@ -149,7 +151,7 @@ export async function generateEmployeeGrowthInsight(
               role: 'user',
               content: JSON.stringify({
                 instruction:
-                  'Create a personal employee growth insight. Return JSON with keys: summary, strengths, focus_areas, suggested_actions. Each array should contain 2 to 4 concise strings. Use supportive language. Avoid manager-only or HR-only wording.',
+                  'Create a personal employee growth insight. Return JSON with keys: summary (a single concise string), strengths (array of 2 to 4 strings), focus_areas (array of 2 to 4 strings), suggested_actions (array of 2 to 4 strings). Use supportive language. Avoid manager-only or HR-only wording.',
                 employee: {
                   job_title: employee.job_title,
                   employment_status: employee.employment_status,
@@ -184,7 +186,7 @@ export async function generateEmployeeGrowthInsight(
     const parsed = JSON.parse(jsonText) as Partial<EmployeeGrowthInsight>;
 
     return {
-      summary: parsed.summary || fallback.summary,
+      summary: normalizeSummary(parsed.summary) || fallback.summary,
       strengths: parsed.strengths?.length
         ? parsed.strengths
         : fallback.strengths,

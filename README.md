@@ -6,6 +6,7 @@ This build is AI native. AI helps during everyday HR work: reviewing application
 
 **Live demo:** [https://ai-native-hrms-portal.onrender.com](https://ai-native-hrms-portal.vercel.app/)
 
+**Note:** The interview transcript feature uses simulated transcript data. Resume verification, workforce analytics, employee insights, request drafting, and recruitment workflows are fully functional and powered by real data.
 ## Capabilities
 
 - Post jobs and manage applications

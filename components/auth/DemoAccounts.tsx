@@ -25,7 +25,7 @@ export default function DemoAccounts({ onDemoSelect }: DemoAccountsProps) {
     {
       role: 'Employee',
       email: 'employee@hrms.com',
-      password: 'employee123',
+      password: 'employee@123',
     },
     {
       role: 'Candidate',
